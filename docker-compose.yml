@@ -1,20 +1,40 @@
 version: '3'
 
 services:
-  app:
+  postgres:
+    container_name: db-postgres
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - '${DB_PORT}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - setup_nest_postgres
+
+  api:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: api_nest
     ports:
       - '${API_PORT}:3000'
+    depends_on:
+      - postgres
     volumes:
       - .:/usr/app
     networks:
-      - api_nest
+      - setup_nest_postgres
     env_file:
       - .env
 
+volumes:
+  postgres_data:
+
 networks:
-  api_nest:
+  setup_nest_postgres:
     driver: bridge
