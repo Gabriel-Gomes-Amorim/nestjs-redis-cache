@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api_nest
+    ports:
+      - '${API_PORT}:3000'
+    volumes:
+      - .:/usr/app
+    networks:
+      - api_nest
+    env_file:
+      - .env
+
+networks:
+  api_nest:
+    driver: bridge
