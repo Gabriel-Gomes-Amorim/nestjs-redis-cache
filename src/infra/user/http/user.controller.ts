@@ -1,42 +1,21 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Req, Res } from '@nestjs/common';
 import { UserService } from '../../../domain/user/service/user.service';
-import { CreateUserDto } from '../../../domain/user/dto/create-user.dto';
-import { UpdateUserDto } from '../../../domain/user/dto/update-user.dto';
+import { Request, Response } from 'express';
+import { User } from '../entity/user';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
   @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  async getUsers(@Res() res: Response, @Req() req: Request): Promise<Response> {
+    try {
+      const users: User[] | null = await this.userService.getUsers();
+      return res.status(HttpStatus.OK).json(users);
+    } catch (error) {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ message: 'erro ao buscar usuários!', error: error.message });
+    }
   }
 }
